@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -629,6 +629,18 @@ namespace nesne_proje
             Console.Write("Ürün markası: ");
             string marka = Console.ReadLine();
 
+            // Mevcut ürünü kontrol et (büyük/küçük harf duyarsız)
+            var mevcutUrun = urunler.FirstOrDefault(u =>
+                u.Ad.Equals(ad, StringComparison.OrdinalIgnoreCase) &&
+                u.Kategori.Equals(kategori, StringComparison.OrdinalIgnoreCase) &&
+                u.Marka.Equals(marka, StringComparison.OrdinalIgnoreCase));
+
+            if (mevcutUrun != null)
+            {
+                Console.WriteLine("Bu ürün zaten mevcut.");
+                return;
+            }
+
             Console.Write("Stok miktarı: ");
             if (!int.TryParse(Console.ReadLine(), out int stok))
             {
@@ -655,15 +667,25 @@ namespace nesne_proje
         {
             Console.Write("Silmek istediğiniz ürün adını girin: ");
             string urunAdi = Console.ReadLine();
-            var urun = urunler.FirstOrDefault(u => u.Ad.ToLower() == urunAdi.ToLower());
+            var urun = urunler.FirstOrDefault(u => u.Ad.Equals(urunAdi, StringComparison.OrdinalIgnoreCase));
 
             if (urun != null)
             {
-                urunler.Remove(urun);
+                Console.Write("Bu ürünü silmek istediğinizden emin misiniz? (Evet/Hayır): ");
+                string onay = Console.ReadLine();
 
-                // Dosyaya kaydet
-                UrunleriDosyayaKaydet(urunler);
-                Console.WriteLine("Ürün başarıyla silindi.");
+                if (onay.Equals("Evet", StringComparison.OrdinalIgnoreCase))
+                {
+                    urunler.Remove(urun);
+
+                    // Dosyaya kaydet
+                    UrunleriDosyayaKaydet(urunler);
+                    Console.WriteLine("Ürün başarıyla silindi.");
+                }
+                else
+                {
+                    Console.WriteLine("Ürün silinmedi.");
+                }
             }
             else
             {
